@@ -1,4 +1,4 @@
-#include <aruco_ros/aruco_ros_utils.h>
+#include <kimm_aruco/aruco_ros_utils.h>
 #include <ros/console.h>
 #include <ros/assert.h>
 #include <iostream>
@@ -56,6 +56,47 @@ aruco::CameraParameters aruco_ros::rosCameraInfo2ArucoCamParams(const sensor_msg
   return aruco::CameraParameters(cameraMatrix, distorsionCoeff, size);
 }
 
+tf::Transform aruco_ros::arucoMarker2Tf(const aruco::Marker &marker, bool rotate_marker_axis_for_ros)
+{
+  tf2::Transform tf2_tf = arucoMarker2Tf2(marker, rotate_marker_axis_for_ros);
+  return tf::Transform(
+        tf::Matrix3x3(tf::Quaternion(tf2_tf.getRotation().x(),
+                                     tf2_tf.getRotation().y(),
+                                     tf2_tf.getRotation().z(),
+                                     tf2_tf.getRotation().w())),
+                      tf::Vector3(tf2_tf.getOrigin().x(),
+                                  tf2_tf.getOrigin().y(),
+                                  tf2_tf.getOrigin().z()));
+}
+tf2::Transform aruco_ros::arucoMarker2Tf2(const aruco::Marker &marker, bool rotate_marker_axis_for_ros)
+{
+  cv::Mat rot(3, 3, CV_64FC1);
+  cv::Mat Rvec64;
+  marker.Rvec.convertTo(Rvec64, CV_64FC1);
+  cv::Rodrigues(Rvec64, rot);
+  cv::Mat tran64;
+  marker.Tvec.convertTo(tran64, CV_64FC1);
+
+  tf2::Matrix3x3 tf_rot(rot.at<double>(0, 0), rot.at<double>(0, 1), rot.at<double>(0, 2), rot.at<double>(1, 0),
+                       rot.at<double>(1, 1), rot.at<double>(1, 2), rot.at<double>(2, 0), rot.at<double>(2, 1),
+                       rot.at<double>(2, 2));
+
+  if (rotate_marker_axis_for_ros)
+  {
+    //Jinseong Park
+  tf2::Matrix3x3 tfrot (  0.0,  1.0,  0.0,
+                         -1.0,  0.0,  0.0,
+                          0.0,  0.0,  1.0);
+  tf_rot = tfrot * tf_rot;
+  //
+  }
+
+  tf2::Vector3 tf_orig(tran64.at<double>(0, 0), tran64.at<double>(1, 0), tran64.at<double>(2, 0));
+
+  return tf2::Transform(tf_rot, tf_orig);
+}
+
+
 tf::Transform aruco_ros::arucoMarker2Tf(const aruco::Marker &marker)
 {
   tf2::Transform tf2_tf = arucoMarker2Tf2(marker);
@@ -99,10 +140,10 @@ std::vector<aruco::Marker> aruco_ros::detectMarkers(const cv::Mat &img, const ar
       //        pal_vision_util::dctNormalization(inImage, inImageNorm,
       //        dctComponentsToRemove); inImage = inImageNorm;
     }
-
+    
     // detection results will go into "markers"
     markers.clear();
-    // ok, let's detect
+    // ok, let's detect 
     if (detector)
     {
       detector->detect(img, markers, cam_params, marker_size, false, correct_fisheye);

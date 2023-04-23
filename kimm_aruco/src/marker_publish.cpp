@@ -41,7 +41,7 @@
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
-#include <aruco_ros/aruco_ros_utils.h>
+#include <kimm_aruco/aruco_ros_utils.h>
 #include <aruco_msgs/MarkerArray.h>
 #include <tf/transform_listener.h>
 #include <std_msgs/UInt32MultiArray.h>

@@ -41,13 +41,13 @@
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
-#include <aruco_ros/aruco_ros_utils.h>
+#include <kimm_aruco/aruco_ros_utils.h>
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_listener.h>
 #include <visualization_msgs/Marker.h>
 
 #include <dynamic_reconfigure/server.h>
-#include <aruco_ros/ArucoThresholdConfig.h>
+#include <kimm_aruco/ArucoThresholdConfig.h>
 
 class ArucoSimple
 {
@@ -93,7 +93,7 @@ public:
 
     aruco::MarkerDetector::Params params = mDetector.getParameters();
     std::string thresh_method;
-    switch (params.thresMethod)
+    switch (params._thresMethod)
     {
       case aruco::MarkerDetector::ThresMethod::THRES_ADAPTIVE:
         thresh_method = "THRESH_ADAPTIVE";
