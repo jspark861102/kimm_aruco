@@ -10,7 +10,7 @@
     <arg name="marker2_frame"     default="marker_object_frame" />
 
 
-    <node pkg="aruco_ros" type="double" name="aruco_simple">    
+    <node pkg="kimm_aruco" type="double" name="aruco_simple">    
         <remap from="/camera_info" to="/camera/color/camera_info" />
         <remap from="/image" to="/camera/color/image_raw" />
         <param name="image_is_rectified" value="True"/>

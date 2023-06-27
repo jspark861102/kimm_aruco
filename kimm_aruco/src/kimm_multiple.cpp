@@ -56,7 +56,7 @@
 
 cv::Mat inImage;
 aruco::CameraParameters camParam;
-bool useRectifiedImages, normalizeImageIllumination, is_image;
+bool useRectifiedImages, normalizeImageIllumination;
 int dctComponentsToRemove;
 aruco::MarkerDetector mDetector;
 std::vector<aruco::Marker> markers;
@@ -72,9 +72,9 @@ std::string parent_name;
 std::string child_name2;
 std::string reference_name;
 std::string calib_filename;
+std::string rotate_marker_axis_for_ros;
 
 bool isrobotcall;
-bool rotate_marker_axis_for_ros;
 
 double marker_size;
 int marker_id1;
@@ -123,26 +123,19 @@ void image_callback(const sensor_msgs::ImageConstPtr& msg)
               tf::Transform transform = aruco_ros::arucoMarker2Tf(markers[i], rotate_marker_axis_for_ros);
               br.sendTransform(tf::StampedTransform(transform, curr_stamp, parent_name, child_name1));
               geometry_msgs::Pose poseMsg;
-
-              if (is_image)
-              {
-                tf::poseTFToMsg(transform, poseMsg);       
+              
+              //publish marker pose w.r.t. reference_name (ex:odom, baselink, camera_color_optical_frame...)
+              tf::StampedTransform reference_to_marker;
+              try{
+                tf_listener.waitForTransform(reference_name, child_name1, ros::Time(0), ros::Duration(1.0));
+                tf_listener.lookupTransform(reference_name, child_name1, ros::Time(0), reference_to_marker);
+                tf::poseTFToMsg(reference_to_marker, poseMsg);
                 pose_pub1.publish(poseMsg);
               }
-              else
-              {
-                //publish marker pose w.r.t. reference_name (ex:odom, baselink, camera_color_optical_frame...)
-                tf::StampedTransform reference_to_marker;
-                try{
-                  tf_listener.waitForTransform(reference_name, child_name1, ros::Time(0), ros::Duration(1.0));
-                  tf_listener.lookupTransform(reference_name, child_name1, ros::Time(0), reference_to_marker);
-                  tf::poseTFToMsg(reference_to_marker, poseMsg);
-                  pose_pub1.publish(poseMsg);
-                }
-                catch (tf::TransformException &ex) {
-                    continue;
-                }
-              }                        
+              catch (tf::TransformException &ex) {
+                  continue;
+              }
+                                      
             }
             else if (markers[i].id == marker_id2)
             {
@@ -150,26 +143,19 @@ void image_callback(const sensor_msgs::ImageConstPtr& msg)
               tf::Transform transform = aruco_ros::arucoMarker2Tf(markers[i], rotate_marker_axis_for_ros);
               br.sendTransform(tf::StampedTransform(transform, curr_stamp, parent_name, child_name2));
               geometry_msgs::Pose poseMsg;
-
-              if (is_image)
-              {
-                tf::poseTFToMsg(transform, poseMsg);       
+              
+              //publish marker pose w.r.t. reference_name (ex:odom, baselink, camera_color_optical_frame...)
+              tf::StampedTransform reference_to_marker;
+              try{
+                tf_listener.waitForTransform(reference_name, child_name2, ros::Time(0), ros::Duration(1.0));
+                tf_listener.lookupTransform(reference_name, child_name2, ros::Time(0), reference_to_marker);
+                tf::poseTFToMsg(reference_to_marker, poseMsg);
                 pose_pub2.publish(poseMsg);
               }
-              else
-              {
-                //publish marker pose w.r.t. reference_name (ex:odom, baselink, camera_color_optical_frame...)
-                tf::StampedTransform reference_to_marker;
-                try{
-                  tf_listener.waitForTransform(reference_name, child_name2, ros::Time(0), ros::Duration(1.0));
-                  tf_listener.lookupTransform(reference_name, child_name2, ros::Time(0), reference_to_marker);
-                  tf::poseTFToMsg(reference_to_marker, poseMsg);
-                  pose_pub2.publish(poseMsg);
-                }
-                catch (tf::TransformException &ex) {
-                    continue;
-                }
-              }              
+              catch (tf::TransformException &ex) {
+                  continue;
+              }
+                            
             }
             // but drawing all the detected markers
             markers[i].draw(inImage, cv::Scalar(0, 0, 255), 2);
@@ -300,9 +286,7 @@ int main(int argc, char **argv)
   isrobotcall = true;
 #else
   isrobotcall = false;
-#endif
-
-  rotate_marker_axis_for_ros = true;
+#endif  
 
   nh.param<bool>("image_is_rectified", useRectifiedImages, true);
   ROS_INFO_STREAM("Image is rectified: " << useRectifiedImages);
@@ -328,17 +312,10 @@ int main(int argc, char **argv)
   nh.param<std::string>("parent_name", parent_name, "");
   nh.param<std::string>("child_name1", child_name1, "");
   nh.param<std::string>("child_name2", child_name2, "");
-  nh.param<std::string>("calibration_file", calib_filename, "");
-  nh.param<bool>("is_image", is_image, false); 
-  nh.param<bool>("rotate_marker_axis_for_ros", rotate_marker_axis_for_ros, true);   
-
-  if (is_image)
-  {
-    parseCalibrationFile(calib_filename);
-    cam_info_received = true;
-  }
-  else
-    cam_info_sub = nh.subscribe("/camera_info", 1, &cam_info_callback);
+  nh.param<std::string>("calibration_file", calib_filename, "");  
+  nh.param<std::string>("rotate_marker_axis_for_ros", rotate_marker_axis_for_ros, "none");     
+  
+  cam_info_sub = nh.subscribe("/camera_info", 1, &cam_info_callback);
   
   if (parent_name == "" || child_name1 == "" || child_name2 == "")
   {

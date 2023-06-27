@@ -26,8 +26,8 @@ tf::Transform arucoMarker2Tf(const aruco::Marker& marker);
 tf2::Transform arucoMarker2Tf2(const aruco::Marker& marker);
 
 //jspark
-tf::Transform arucoMarker2Tf(const aruco::Marker& marker, bool rotate_marker_axis_for_ros);
-tf2::Transform arucoMarker2Tf2(const aruco::Marker& marker, bool rotate_marker_axis_for_ros);
+tf::Transform arucoMarker2Tf(const aruco::Marker& marker, std::string rotate_marker_axis_for_ros);
+tf2::Transform arucoMarker2Tf2(const aruco::Marker& marker, std::string rotate_marker_axis_for_ros);
 
 std::vector<aruco::Marker> detectMarkers(const cv::Mat& img,
                                          const aruco::CameraParameters& cam_params,
