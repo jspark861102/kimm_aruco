@@ -81,35 +81,24 @@ tf2::Transform aruco_ros::arucoMarker2Tf2(const aruco::Marker &marker, std::stri
                        rot.at<double>(1, 1), rot.at<double>(1, 2), rot.at<double>(2, 0), rot.at<double>(2, 1),
                        rot.at<double>(2, 2));
 
-  if (rotate_marker_axis_for_ros == "kinova_gen3")
+  if (rotate_marker_axis_for_ros == "roas_project")
   {  
     tf2::Matrix3x3 tfrot (  0.0,  1.0,  0.0,
                            -1.0,  0.0,  0.0,
                             0.0,  0.0,  1.0);
     tf_rot = tfrot * tf_rot;  
   }
-  else if (rotate_marker_axis_for_ros == "franka_emika_panda")
-  {
-    // tf2::Quaternion tfquat (0.383, -0.000, 0.000, 0.924);    
-    // tf2::Matrix3x3 tfrot;
-    // tfrot.getRotation(tfquat);     
-
-    // tf2::Matrix3x3 tfrot1 ( 1.0,  0.0,  0.0,
-    //                         0.0, -1.0,  0.0,
-    //                         0.0,  0.0, -1.0);
-    // tf2::Matrix3x3 tfrot2 ( 0.7071, -0.7071,  0.0,
-    //                         0.7071,  0.7071,  0.0,
-    //                         0.0,     0.0,     1.0);
-
-    // tf_rot =  tfrot2 * tfrot1 * tf_rot;  
-
-
+  else if (rotate_marker_axis_for_ros == "polaris3d_project")  
+  {    
     tf2::Matrix3x3 tfrot1 ( 1.0,  0.0,  0.0,
                             0.0,  0.0,  1.0,
-                            0.0, -1.0,  0.0);
-    tf2::Matrix3x3 tfrot2 ( 0.7071,  0.7071,  0.0,
-                           -0.7071,  0.7071,  0.0,
-                            0.0,     0.0,     1.0);
+                            0.0, -1.0,  0.0);        
+    tf2::Matrix3x3 tfrot2 ( 1.0,  0.0,  0.0,
+                            0.0,  1.0,  0.0,
+                            0.0,  0.0,  1.0);
+    // tf2::Matrix3x3 tfrot2 ( 0.7071,  -0.7071,  0.0,
+    //                         0.7071,   0.7071,  0.0,
+    //                         0.0,     0.0,     1.0);
 
     tf_rot =  tfrot1 * tf_rot * tfrot2;  
   }  

@@ -8,7 +8,7 @@
     <arg name="dct_filter_size"   default="2" />
     <arg name="marker1_frame"     default="marker1_frame" />
     <arg name="marker2_frame"     default="marker2_frame" />
-    <arg name="rotate_marker_axis" default="franka_emika_panda"/>
+    <arg name="rotate_marker_axis" default="polaris3d_project"/>
     <arg name="corner_refinement" default="LINES" /> <!-- NONE, HARRIS, LINES, SUBPIX -->
     <arg name="isrobot"          default="false"/>   
 
