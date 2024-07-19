@@ -8,16 +8,16 @@
     <arg name="dct_filter_size"   default="2" />
     <arg name="marker1_frame"     default="marker1_frame" />
     <arg name="marker2_frame"     default="marker2_frame" />
-    <arg name="rotate_marker_axis" default="polaris3d_project"/>
+    <arg name="rotate_marker_axis" default="polaris3d_project2"/>
     <arg name="corner_refinement" default="LINES" /> <!-- NONE, HARRIS, LINES, SUBPIX -->
     <arg name="isrobot"          default="false"/>   
 
     <group unless="$(arg isrobot)">  
         <arg name="reference_name"    default="camera_color_optical_frame" />
      
-        <include file="$(find realsense2_camera)/launch/rs_rgbd.launch">
+        <!-- <include file="$(find realsense2_camera)/launch/rs_rgbd.launch">
             <arg name="filters"       default="pointcloud"/>            
-        </include>
+        </include> -->
 
         <node pkg="kimm_aruco" type="kimm_multiple_v1" name="kimm_aruco_publisher">  
             <remap from="/camera_info" to="/camera/color/camera_info" />
@@ -56,6 +56,6 @@
         </node>
     </group>    
 
-    <node name="kimm_aruco_rviz" pkg="rviz" type="rviz" args="-d $(find kimm_aruco)/rviz/kimm_aruco_rviz.rviz -f camera_color_optical_frame" required="true"  if="$(arg start_aruco_rviz)"/>
+    <!-- <node name="kimm_aruco_rviz" pkg="rviz" type="rviz" args="-d $(find kimm_aruco)/rviz/kimm_aruco_rviz.rviz -f camera_color_optical_frame" required="true"  if="$(arg start_aruco_rviz)"/> -->
 </launch>
 

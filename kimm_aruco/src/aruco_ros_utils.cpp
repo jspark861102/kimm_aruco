@@ -102,6 +102,16 @@ tf2::Transform aruco_ros::arucoMarker2Tf2(const aruco::Marker &marker, std::stri
 
     tf_rot =  tfrot1 * tf_rot * tfrot2;  
   }  
+  else if (rotate_marker_axis_for_ros == "polaris3d_project2")  
+  {        
+    tf2::Matrix3x3 tfrot1 ( 1.0,  0.0,  0.0,
+                            0.0, -1.0,  0.0,
+                            0.0,  0.0, -1.0);
+    tf2::Matrix3x3 tfrot2 (-1.0,  0.0,  0.0,
+                            0.0, -1.0,  0.0,
+                            0.0,  0.0,  1.0);
+    tf_rot =  tf_rot*tfrot1*tfrot2;  
+  }  
 
   tf2::Vector3 tf_orig(tran64.at<double>(0, 0), tran64.at<double>(1, 0), tran64.at<double>(2, 0));
 
